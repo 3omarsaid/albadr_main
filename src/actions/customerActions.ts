@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import type { CustomerAddress } from "@prisma/client";
 
 import { SerializedCustomer, SerializedAddress } from "@/types";
 
@@ -21,7 +22,7 @@ export async function getCustomerByPhone(phoneNumber: string): Promise<Serialize
       ...customer,
       createdAt: customer.createdAt.toISOString(),
       updatedAt: customer.updatedAt.toISOString(),
-      addresses: customer.addresses.map(addr => ({
+      addresses: customer.addresses.map((addr: CustomerAddress) => ({
         ...addr,
         createdAt: addr.createdAt.toISOString(),
         updatedAt: addr.updatedAt.toISOString(),
