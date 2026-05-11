@@ -1,5 +1,5 @@
-import { OrderStatus } from '@prisma/client';
-export { OrderStatus };
+import type { OrderStatus } from '@prisma/client';
+export type { OrderStatus };
 
 export interface CustomerAddress<T = Date> {
   id: string;
