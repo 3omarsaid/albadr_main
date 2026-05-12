@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { MessageCircle } from 'lucide-react';
 
 export const WhatsAppButton = () => {
-  const whatsappNumber = '201234567890'; // Placeholder
+  const whatsappNumber = '+201094920744';
   const message = encodeURIComponent('مرحباً البدر، أود الاستفسار عن منتجاتكم.');
 
   return (
