@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import {
@@ -24,6 +25,7 @@ import { cn } from "@/lib/utils";
 import { useCustomerStore } from "@/stores/customerStore";
 
 export default function OrdersListClient() {
+  const router = useRouter();
   const [orders, setOrders] = useState<SerializedOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const { customer, isInitialized } = useCustomerStore();
@@ -45,10 +47,11 @@ export default function OrdersListClient() {
       if (customer?.id) {
         setTimeout(() => fetchOrders(customer.id), 0);
       } else {
-        setTimeout(() => setLoading(false), 0);
+        // Redirect to profile/login if not authenticated
+        router.replace('/profile');
       }
     }
-  }, [isInitialized, customer]);
+  }, [isInitialized, customer, router]);
 
   const getStatusConfig = (status: string) => {
     switch (status) {

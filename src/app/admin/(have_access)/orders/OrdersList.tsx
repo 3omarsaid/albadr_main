@@ -47,7 +47,7 @@ export default function OrdersList({ initialOrders }: { initialOrders: AdminOrde
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         {/* Live indicator */}
         <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-2">
           <span className="relative flex h-2 w-2">
@@ -62,7 +62,7 @@ export default function OrdersList({ initialOrders }: { initialOrders: AdminOrde
           value={filterStatus} 
           onValueChange={(val) => setFilterStatus(val as OrderStatus | 'ALL')}
         >
-          <SelectTrigger className="w-56 bg-white border-zinc-200/50 rounded-2xl h-12 shadow-sm font-bold text-zinc-700 focus:ring-emerald-500/20" dir="rtl">
+          <SelectTrigger className="w-full sm:w-56 bg-white border-zinc-200/50 rounded-2xl h-12 shadow-sm font-bold text-zinc-700 focus:ring-emerald-500/20" dir="rtl">
             <SelectValue placeholder="تصفية حسب الحالة" />
           </SelectTrigger>
           <SelectContent className="rounded-2xl border-zinc-100 shadow-xl" dir="rtl">
@@ -76,7 +76,55 @@ export default function OrdersList({ initialOrders }: { initialOrders: AdminOrde
         </Select>
       </div>
 
-      <div className="bg-white rounded-[32px] shadow-sm overflow-hidden border border-zinc-100">
+      {/* ── Mobile Card List (visible on small screens) ── */}
+      <div className="flex flex-col gap-3 md:hidden">
+        {filteredOrders.length === 0 ? (
+          <div className="bg-white rounded-3xl p-10 text-center text-zinc-400 font-medium border border-zinc-100">
+            لا توجد طلبات تطابق الفلتر الحالي
+          </div>
+        ) : filteredOrders.map((order) => (
+          <div
+            key={order.id}
+            className="bg-white rounded-3xl border border-zinc-100 shadow-sm p-5 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="font-black text-emerald-900 text-lg">{order.orderNumber}</p>
+                <p className="font-bold text-zinc-700 text-sm mt-0.5">{order.customer.name}</p>
+                <p className="text-xs text-zinc-400 flex items-center gap-1 font-mono mt-0.5">
+                  {order.customer.phoneNumber}
+                  <Phone className="w-3 h-3" />
+                </p>
+              </div>
+              <span className={cn(
+                "inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm shrink-0",
+                STATUS_MAP[order.status as keyof typeof STATUS_MAP].color
+              )}>
+                {STATUS_MAP[order.status as keyof typeof STATUS_MAP].label}
+              </span>
+            </div>
+            <div className="flex items-center justify-between border-t border-zinc-50 pt-3">
+              <div>
+                <p className="font-black text-emerald-700 text-lg">
+                  {order.totalPrice.toLocaleString()} <span className="text-xs text-emerald-600/70">ج.م</span>
+                </p>
+                <p className="text-zinc-400 text-xs font-medium">
+                  {format(new Date(order.createdAt), 'dd MMMM yyyy | HH:mm', { locale: ar })}
+                </p>
+              </div>
+              <Button 
+                onClick={() => openOrderDetails(order)}
+                className="w-10 h-10 flex items-center justify-center rounded-2xl bg-zinc-50 border border-zinc-100 text-zinc-400 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-100 transition-all active:scale-90"
+              >
+                <Eye className="w-5 h-5" />
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Desktop Table (hidden on small screens) ── */}
+      <div className="hidden md:block bg-white rounded-[32px] shadow-sm overflow-hidden border border-zinc-100">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>

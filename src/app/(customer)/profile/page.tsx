@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useCustomerStore } from "@/stores/customerStore";
 import { createOrUpdateCustomer } from "@/actions/customerActions";
-import { User, Phone, MapPin, Edit2, Save, LogOut, ChevronLeft, Loader2 } from "lucide-react";
+import { User, Phone, MapPin, Edit2, Save, LogOut, ChevronLeft, Loader2, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -14,20 +14,89 @@ export default function ProfilePage() {
   const [name, setName] = useState(customer?.name || "");
   const [isLoading, setIsLoading] = useState(false);
 
+  // ── Registration form state (shown when not logged in) ──
+  const [regName, setRegName] = useState("");
+  const [regPhone, setRegPhone] = useState("");
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!regName || !regPhone) { toast.error("يرجى إدخال جميع البيانات"); return; }
+    if (regPhone.length < 10) { toast.error("رقم الهاتف غير صالح"); return; }
+
+    setIsLoading(true);
+    try {
+      const result = await createOrUpdateCustomer(regName, regPhone);
+      if (result.success && result.customer) {
+        setCustomer(result.customer);
+        toast.success(`أهلاً بك يا ${regName}!`);
+      } else {
+        toast.error(result.error || "حدث خطأ ما");
+      }
+    } catch {
+      toast.error("حدث خطأ في الاتصال");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (!customer) {
     return (
-      <main className="min-h-screen bg-zinc-50 flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-20 h-20 bg-emerald-100 rounded-3xl flex items-center justify-center mb-6">
-          <User className="w-10 h-10 text-emerald-600" />
+      <main className="min-h-screen bg-zinc-50 flex flex-col items-center justify-center p-6" dir="rtl">
+        <div className="w-full max-w-sm">
+          <div className="text-center mb-8">
+            <div className="w-20 h-20 bg-emerald-100 rounded-3xl flex items-center justify-center mb-6 mx-auto">
+              <User className="w-10 h-10 text-emerald-600" />
+            </div>
+            <h1 className="text-2xl font-bold text-zinc-900 mb-2">مرحباً في البدر</h1>
+            <p className="text-zinc-500 text-sm">سجّل بياناتك لتتمكن من إتمام طلباتك ومتابعتها</p>
+          </div>
+
+          <form onSubmit={handleRegister} className="bg-white rounded-3xl p-6 shadow-sm border border-zinc-100 space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-zinc-700 mr-1">الاسم بالكامل</label>
+              <div className="relative">
+                <User className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
+                <input
+                  type="text"
+                  value={regName}
+                  onChange={(e) => setRegName(e.target.value)}
+                  placeholder="أدخل اسمك"
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-2xl py-4 pr-12 pl-4 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-zinc-700 mr-1">رقم الهاتف (واتساب)</label>
+              <div className="relative">
+                <Phone className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
+                <input
+                  type="tel"
+                  value={regPhone}
+                  onChange={(e) => setRegPhone(e.target.value)}
+                  placeholder="01xxxxxxxxx"
+                  dir="ltr"
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-2xl py-4 pr-12 pl-4 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-right"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl py-4 font-bold text-lg shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-70 mt-4"
+            >
+              {isLoading ? (
+                <Loader2 className="w-6 h-6 animate-spin" />
+              ) : (
+                <>
+                  <span>بدء التسوق</span>
+                  <ArrowRight className="w-5 h-5 rotate-180" />
+                </>
+              )}
+            </button>
+          </form>
         </div>
-        <h1 className="text-2xl font-bold text-zinc-900 mb-2">لم تقم بتسجيل الدخول بعد</h1>
-        <p className="text-zinc-500 mb-8 max-w-xs">يرجى تسجيل بياناتك لتتمكن من إدارة حسابك وعناوينك</p>
-        <button
-          onClick={() => router.push("/")}
-          className="bg-emerald-600 text-white px-8 py-3 rounded-2xl font-bold shadow-lg shadow-emerald-600/20 active:scale-95 transition-all"
-        >
-          العودة للرئيسية
-        </button>
       </main>
     );
   }

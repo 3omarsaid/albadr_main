@@ -8,8 +8,19 @@ import { Phone, Calendar, History } from 'lucide-react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { CustomerHistoryDialog } from './CustomerHistoryDialog';
+type Customers = ({
+    _count: {
+        orders: number;
+    };
+} & {
+    id: string;
+    name: string;
+    createdAt: Date;
+    updatedAt: Date;
+    phoneNumber: string;
+})[]
 
-export function CustomersList({ initialCustomers }: { initialCustomers: any[] }) {
+export function CustomersList({ initialCustomers }: { initialCustomers: Customers }) {
   const [customers] = useState(initialCustomers);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [selectedCustomerName, setSelectedCustomerName] = useState<string>('');
@@ -23,7 +34,51 @@ export function CustomersList({ initialCustomers }: { initialCustomers: any[] })
 
   return (
     <>
-      <div className="bg-white rounded-[32px] shadow-sm border border-zinc-100">
+      {/* ── Mobile Card List ── */}
+      <div className="flex flex-col gap-3 md:hidden">
+        {customers.length === 0 ? (
+          <div className="bg-white rounded-3xl p-10 text-center text-zinc-400 font-bold border border-zinc-100">
+            لا يوجد عملاء مسجلين حالياً
+          </div>
+        ) : customers.map((customer) => (
+          <div
+            key={customer.id}
+            className="bg-white rounded-3xl border border-zinc-100 shadow-sm p-5 space-y-3"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="font-bold text-emerald-950 text-base">{customer.name}</p>
+                <div className="flex items-center gap-1.5 mt-1 text-zinc-500 text-sm">
+                  <Phone className="w-3.5 h-3.5 text-zinc-400" />
+                  <span className="font-medium">{customer.phoneNumber}</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 bg-emerald-50 rounded-2xl px-3 py-1.5">
+                <span className="font-black text-emerald-700 text-sm">{customer._count.orders}</span>
+                <span className="text-xs font-bold text-emerald-600/70">طلب</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between border-t border-zinc-50 pt-3">
+              <div className="flex items-center gap-1.5 text-zinc-400 text-xs">
+                <Calendar className="w-3.5 h-3.5" />
+                <span className="font-medium">
+                  {format(new Date(customer.createdAt), 'dd MMMM yyyy', { locale: ar })}
+                </span>
+              </div>
+              <button 
+                onClick={() => openHistory(customer.id, customer.name)}
+                className="text-sm font-black text-emerald-600 hover:text-emerald-700 flex items-center gap-1.5 transition-all"
+              >
+                <History className="w-4 h-4" />
+                عرض السجل
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Desktop Table ── */}
+      <div className="hidden md:block bg-white rounded-[32px] shadow-sm border border-zinc-100">
         <div className="w-full overflow-x-auto pb-4">
           <Table>
             <TableHeader>

@@ -157,7 +157,7 @@ export function CheckoutForm() {
       if (result.success && result.whatsappUrl) {
         toast.success("تم تجهيز طلبك! جاري تحويلك للواتساب...");
         clearCart();
-        window.open(result.whatswhatsappUrl!, "_blank");
+        window.open(result.whatsappUrl, "_blank");
 
         setTimeout(() => {
           router.push("/orders");
@@ -249,56 +249,76 @@ export function CheckoutForm() {
           )}
         </div>
 
-        <div className="space-y-4">
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-zinc-700 ml-1">
-              الاسم بالكامل
-            </label>
-            <div className="relative">
-              <User className="w-5 h-5 text-zinc-400 absolute right-4 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                {...register("name")}
-                readOnly={(customer && !isEditingInfo) || false}
-                placeholder="الاسم"
-                className={`w-full bg-zinc-50 border border-zinc-200 rounded-2xl py-3.5 pr-11 pl-4 text-sm outline-none transition-all ${
-                  (customer && !isEditingInfo) || false
-                    ? "opacity-70 cursor-not-allowed"
-                    : "focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                }`}
-              />
+        {!customer ? (
+          /* ─── Login Prompt ─── */
+          <div className="flex flex-col items-center gap-4 py-4 text-center">
+            <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center">
+              <User className="w-7 h-7 text-emerald-500" />
             </div>
-            {errors.name && (
-              <p className="text-red-500 text-sm">{errors.name.message}</p>
-            )}
+            <div>
+              <p className="font-bold text-zinc-800 mb-1">سجّل بياناتك أولاً</p>
+              <p className="text-sm text-zinc-500">لإتمام الطلب يجب تسجيل اسمك ورقم هاتفك</p>
+            </div>
+            <a
+              href="/profile"
+              className="inline-flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg shadow-emerald-600/20 active:scale-95 transition-all"
+            >
+              <Plus className="w-4 h-4" />
+              تسجيل الدخول / إنشاء حساب
+            </a>
           </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-zinc-700 ml-1">
+                الاسم بالكامل
+              </label>
+              <div className="relative">
+                <User className="w-5 h-5 text-zinc-400 absolute right-4 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  {...register("name")}
+                  readOnly={(customer && !isEditingInfo) || false}
+                  placeholder="الاسم"
+                  className={`w-full bg-zinc-50 border border-zinc-200 rounded-2xl py-3.5 pr-11 pl-4 text-sm outline-none transition-all ${
+                    (customer && !isEditingInfo) || false
+                      ? "opacity-70 cursor-not-allowed"
+                      : "focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                  }`}
+                />
+              </div>
+              {errors.name && (
+                <p className="text-red-500 text-sm">{errors.name.message}</p>
+              )}
+            </div>
 
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-zinc-700 ml-1">
-              رقم الواتساب
-            </label>
-            <div className="relative">
-              <Phone className="w-5 h-5 text-zinc-400 absolute right-4 top-1/2 -translate-y-1/2" />
-              <input
-                type="tel"
-                dir="ltr"
-                {...register("phoneNumber")}
-                readOnly={(customer && !isEditingInfo) || false}
-                placeholder="01xxxxxxxxx"
-                className={`w-full bg-zinc-50 border border-zinc-200 rounded-2xl py-3.5 pr-11 pl-4 text-sm outline-none transition-all text-right ${
-                  (customer && !isEditingInfo) || false
-                    ? "opacity-70 cursor-not-allowed"
-                    : "focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                }`}
-              />
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-zinc-700 ml-1">
+                رقم الواتساب
+              </label>
+              <div className="relative">
+                <Phone className="w-5 h-5 text-zinc-400 absolute right-4 top-1/2 -translate-y-1/2" />
+                <input
+                  type="tel"
+                  dir="ltr"
+                  {...register("phoneNumber")}
+                  readOnly={(customer && !isEditingInfo) || false}
+                  placeholder="01xxxxxxxxx"
+                  className={`w-full bg-zinc-50 border border-zinc-200 rounded-2xl py-3.5 pr-11 pl-4 text-sm outline-none transition-all text-right ${
+                    (customer && !isEditingInfo) || false
+                      ? "opacity-70 cursor-not-allowed"
+                      : "focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                  }`}
+                />
+              </div>
+              {errors.phoneNumber && (
+                <p className="text-red-500 text-sm">
+                  {errors.phoneNumber.message}
+                </p>
+              )}
             </div>
-            {errors.phoneNumber && (
-              <p className="text-red-500 text-sm">
-                {errors.phoneNumber.message}
-              </p>
-            )}
           </div>
-        </div>
+        )}
       </section>
 
       {/* 3. Order Summary & Submit (Sticky Bottom - Above Nav) */}
