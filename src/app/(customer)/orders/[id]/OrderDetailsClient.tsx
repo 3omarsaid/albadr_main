@@ -75,7 +75,7 @@ export default function OrderDetailsClient({
     }
   }, [isInitialized, customer, initialOrder.customerId, router]);
 
-  const ADMIN_PHONE = process.env.NEXT_PUBLIC_ADMIN_PHONE || "201140922830";
+  const ADMIN_PHONE = process.env.NEXT_PUBLIC_ADMIN_PHONE || "+201094920744";
   const whatsappLink = `https://wa.me/${ADMIN_PHONE}?text=${encodeURIComponent(
     `السلام عليكم، بخصوص طلبي رقم #${order.orderNumber.split("-").pop()}
     ${order?.address ? `العنوان: ${order.address.addressText}` : ""}`,

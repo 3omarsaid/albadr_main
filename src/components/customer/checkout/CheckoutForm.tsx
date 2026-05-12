@@ -157,7 +157,7 @@ export function CheckoutForm() {
       if (result.success && result.whatsappUrl) {
         toast.success("تم تجهيز طلبك! جاري تحويلك للواتساب...");
         clearCart();
-        window.open(result.whatsappUrl!, "_blank");
+        window.open(result.whatswhatsappUrl!, "_blank");
 
         setTimeout(() => {
           router.push("/orders");

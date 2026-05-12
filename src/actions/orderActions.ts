@@ -123,7 +123,7 @@ export async function submitOrder(data: z.infer<typeof CheckoutSchema>) {
     message += `\n*الإجمالي:* ${hasNegotiable ? "السعر النهائي يحدد عبر الواتساب" : `${validatedData.totalPrice} ج.م`}\n`;
 
     const whatsappNumber =
-      process.env.NEXT_PUBLIC_ADMIN_PHONE || "201000000000";
+      process.env.NEXT_PUBLIC_ADMIN_PHONE || "+201140922830";
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
 
