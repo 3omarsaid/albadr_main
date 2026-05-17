@@ -4,10 +4,12 @@ import { prisma } from "@/lib/prisma";
 import { OrderStatus } from "@prisma/client";
 import { z } from "zod";
 import { AdminOrder } from "@/types";
+import { revalidatePath } from "next/cache";
 
 const CheckoutSchema = z.object({
   name: z.string().min(2, "الاسم مطلوب"),
   phoneNumber: z.string().min(10, "رقم الهاتف غير صالح"),
+  customerId: z.string().optional(),
   addressName: z.string().optional().default("عنوان التوصيل"),
   latitude: z.number(),
   longitude: z.number(),
@@ -28,14 +30,25 @@ export async function submitOrder(data: z.infer<typeof CheckoutSchema>) {
     const validatedData = CheckoutSchema.parse(data);
 
     // Create or update customer
-    const customer = await prisma.customer.upsert({
-      where: { phoneNumber: validatedData.phoneNumber },
-      update: { name: validatedData.name },
-      create: {
-        phoneNumber: validatedData.phoneNumber,
-        name: validatedData.name,
-      },
-    });
+    let customer;
+    if (validatedData.customerId) {
+      customer = await prisma.customer.update({
+        where: { id: validatedData.customerId },
+        data: {
+          name: validatedData.name,
+          phoneNumber: validatedData.phoneNumber,
+        },
+      });
+    } else {
+      customer = await prisma.customer.upsert({
+        where: { phoneNumber: validatedData.phoneNumber },
+        update: { name: validatedData.name },
+        create: {
+          phoneNumber: validatedData.phoneNumber,
+          name: validatedData.name,
+        },
+      });
+    }
 
     // Check if address already exists for this customer
     let address = await prisma.customerAddress.findFirst({
@@ -127,7 +140,24 @@ export async function submitOrder(data: z.infer<typeof CheckoutSchema>) {
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
 
-    return { success: true, orderId: order.id, whatsappUrl };
+    // Fetch full customer with addresses to return for session
+    const fullCustomer = await prisma.customer.findUnique({
+      where: { id: customer.id },
+      include: { addresses: true },
+    });
+
+    const serializedCustomer = fullCustomer ? {
+      ...fullCustomer,
+      createdAt: fullCustomer.createdAt.toISOString(),
+      updatedAt: fullCustomer.updatedAt.toISOString(),
+      addresses: fullCustomer.addresses.map((a) => ({
+        ...a,
+        createdAt: a.createdAt.toISOString(),
+        updatedAt: a.updatedAt.toISOString(),
+      })),
+    } : null;
+
+    return { success: true, orderId: order.id, whatsappUrl, customer: serializedCustomer };
   } catch (error) {
     console.error("Order submission failed:", error);
     return { success: false, error: "Failed to submit order" };
@@ -273,6 +303,9 @@ export async function updateOrderItemsPrices(orderId: string, items: { id: strin
       });
     }
 
+    revalidatePath("/admin/orders");
+    revalidatePath("/admin");
+    revalidatePath(`/orders/${orderId}`);
     return { success: true };
   } catch (error) {
     console.error("Failed to update prices:", error);
@@ -297,6 +330,9 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus) {
       data: { status },
     });
 
+    revalidatePath("/admin/orders");
+    revalidatePath("/admin");
+    revalidatePath(`/orders/${orderId}`);
     return { success: true, order };
   } catch (error) {
     console.error("Failed to update order status:", error);

@@ -229,7 +229,7 @@ export function OrderDetailsDialog({ order, isOpen, onOpenChange, onOrderUpdated
                                 <Input 
                                   type="number"
                                   placeholder="تحديد السعر"
-                                  className="h-11 w-full rounded-xl border-amber-200 bg-amber-50 focus:ring-amber-500/20 focus:border-amber-500 text-right pr-4 pl-12 font-bold"
+                                  className="h-11 w-full text-md font-bold rounded border-amber-200 bg-amber-50 focus:ring-amber-500/20 focus:border-amber-500 text-right pr-4 pl-12"
                                   value={prices[item.id] || ''}
                                   onChange={(e) => handlePriceChange(item.id, e.target.value)}
                                 />

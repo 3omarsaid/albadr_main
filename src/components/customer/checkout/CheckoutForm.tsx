@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+
 // Dynamically import the map to prevent SSR issues 
 const InteractiveMap = dynamic(() => import("./InteractiveMap"), {
   ssr: false,
@@ -51,7 +52,7 @@ type CheckoutFormValues = z.infer<typeof checkoutSchema>;
 export function CheckoutForm() {
   const router = useRouter();  
   const { items, getTotalPrice, clearCart } = useCartStore();
-  const { customer, isInitialized } = useCustomerStore();
+  const { customer, isInitialized, setCustomer } = useCustomerStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditingInfo, setIsEditingInfo] = useState(false);
   const [hasLoadedInitialAddress, setHasLoadedInitialAddress] = useState(false);
@@ -141,6 +142,7 @@ export function CheckoutForm() {
 
     const orderData = {
       ...data,
+      customerId: customer?.id,
       addressName: "عنوان التوصيل",
       totalPrice: getTotalPrice(),
       items: items.map((item) => ({
@@ -155,6 +157,9 @@ export function CheckoutForm() {
       const result = await submitOrder(orderData);
 
       if (result.success && result.whatsappUrl) {
+        if (result.customer) {
+          setCustomer(result.customer);
+        }
         toast.success("تم تجهيز طلبك! جاري تحويلك للواتساب...");
         clearCart();
         window.open(result.whatsappUrl, "_blank");
@@ -249,28 +254,9 @@ export function CheckoutForm() {
           )}
         </div>
 
-        {!customer ? (
-          /* ─── Login Prompt ─── */
-          <div className="flex flex-col items-center gap-4 py-4 text-center">
-            <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center">
-              <User className="w-7 h-7 text-emerald-500" />
-            </div>
-            <div>
-              <p className="font-bold text-zinc-800 mb-1">سجّل بياناتك أولاً</p>
-              <p className="text-sm text-zinc-500">لإتمام الطلب يجب تسجيل اسمك ورقم هاتفك</p>
-            </div>
-            <a
-              href="/profile"
-              className="inline-flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg shadow-emerald-600/20 active:scale-95 transition-all"
-            >
-              <Plus className="w-4 h-4" />
-              تسجيل الدخول / إنشاء حساب
-            </a>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-zinc-700 ml-1">
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-zinc-700 ml-1">
                 الاسم بالكامل
               </label>
               <div className="relative">
@@ -318,7 +304,6 @@ export function CheckoutForm() {
               )}
             </div>
           </div>
-        )}
       </section>
 
       {/* 3. Order Summary & Submit (Sticky Bottom - Above Nav) */}
