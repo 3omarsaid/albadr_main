@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import type { CustomerAddress } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 import { SerializedCustomer, SerializedAddress } from "@/types";
 
@@ -61,6 +62,7 @@ export async function createOrUpdateCustomer(name: string, phoneNumber: string) 
       })),
     };
 
+    revalidatePath("/admin/customers");
     return { success: true, customer: serializedCustomer };
   } catch (error) {
     console.error("Failed to create/update customer:", error);

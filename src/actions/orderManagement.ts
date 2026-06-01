@@ -131,7 +131,7 @@ export async function cancelOrder(orderId: string) {
     revalidatePath(`/orders/${orderId}`);
     revalidatePath('/orders');
     revalidatePath('/admin/orders');
-    revalidatePath('/admin');
+    revalidatePath('/admin/dashboard');
     return { success: true, message: 'تم إلغاء الطلب بنجاح' };
   } catch (error) {
     console.error('Error cancelling order:', error);
@@ -166,8 +166,9 @@ export async function updateOrderAddress(orderId: string, newAddress: string) {
     });
 
     revalidatePath(`/orders/${orderId}`);
+    revalidatePath('/orders');
     revalidatePath('/admin/orders');
-    revalidatePath('/admin');
+    revalidatePath('/admin/dashboard');
     return { success: true, message: 'تم تحديث العنوان بنجاح' };
   } catch (error) {
     console.error('Error updating order address:', error);

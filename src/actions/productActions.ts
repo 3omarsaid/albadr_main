@@ -53,8 +53,10 @@ export async function deleteProduct(id: string) {
     await prisma.product.delete({
       where: { id },
     });
-    revalidatePath("/dashboard/products");
+    revalidatePath("/admin/products");
+    revalidatePath("/admin/dashboard");
     revalidatePath("/");
+    revalidatePath(`/product/${id}`);
     return { success: true };
   } catch (error) {
     console.error('Failed to delete product:', error);
@@ -75,7 +77,8 @@ export async function createProduct(data: Partial<SerializedProduct>) {
         images: data.images || [],
       },
     });
-    revalidatePath("/dashboard/products");
+    revalidatePath("/admin/products");
+    revalidatePath("/admin/dashboard");
     revalidatePath("/");
     return { success: true, product: {
       ...product,
@@ -103,8 +106,10 @@ export async function updateProduct(id: string, data: Partial<SerializedProduct>
         images: data.images,
       },
     });
-    revalidatePath("/dashboard/products");
+    revalidatePath("/admin/products");
+    revalidatePath("/admin/dashboard");
     revalidatePath("/");
+    revalidatePath(`/product/${id}`);
     return { success: true, product: {
       ...product,
       price: Number(product.price),
@@ -123,8 +128,10 @@ export async function updateProductStatus(id: string, isActive: boolean) {
       where: { id },
       data: { isActive },
     });
-    revalidatePath("/dashboard/products");
+    revalidatePath("/admin/products");
+    revalidatePath("/admin/dashboard");
     revalidatePath("/");
+    revalidatePath(`/product/${id}`);
     return { success: true, product: {
       ...product,
       price: Number(product.price),

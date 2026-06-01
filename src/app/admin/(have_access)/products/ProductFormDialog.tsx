@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { SerializedProduct } from '@/types';
 import { createProduct, updateProduct, getUniqueCategories, getUniqueUnits } from '@/actions/productActions';
-import { supabase } from '@/lib/supabase';
+import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
 import { toast } from 'sonner';
 import imageCompression from 'browser-image-compression';
 import { Loader2, X, UploadCloud } from 'lucide-react';
@@ -23,6 +23,7 @@ interface ProductFormDialogProps {
 }
 
 export function ProductFormDialog({ product, isOpen, onOpenChange, onSaved }: ProductFormDialogProps) {
+  const supabase = createSupabaseBrowserClient();
   const isEditing = !!product;
   const [loading, setLoading] = useState(false);
 

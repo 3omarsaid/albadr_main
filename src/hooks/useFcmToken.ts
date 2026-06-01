@@ -120,6 +120,29 @@ export function useFcmToken(options: UseFcmTokenOptions = {}): UseFcmTokenReturn
           { scope: '/' }
         );
         console.info('[FCM] Service Worker registered:', swRegistration.scope);
+
+        // الانتظار حتى يصبح الـ Service Worker نشطاً (Active) لتجنب أخطاء التسجيل
+        if (!swRegistration.active) {
+          console.info('[FCM] Service worker is not active yet. Waiting for activation...');
+          const activeWorker = swRegistration.installing || swRegistration.waiting;
+          if (activeWorker) {
+            await new Promise<void>((resolve) => {
+              const stateChangeHandler = () => {
+                if (activeWorker.state === 'activated') {
+                  activeWorker.removeEventListener('statechange', stateChangeHandler);
+                  console.info('[FCM] Service worker activated.');
+                  resolve();
+                }
+              };
+              activeWorker.addEventListener('statechange', stateChangeHandler);
+              // التحقق الاحتياطي في حال تنشيطه أثناء تعيين المستمع
+              if (activeWorker.state === 'activated') {
+                activeWorker.removeEventListener('statechange', stateChangeHandler);
+                resolve();
+              }
+            });
+          }
+        }
       }
 
       // 3. الحصول على Messaging Instance

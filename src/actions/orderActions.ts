@@ -136,7 +136,7 @@ export async function submitOrder(data: z.infer<typeof CheckoutSchema>) {
     message += `\n*الإجمالي:* ${hasNegotiable ? "السعر النهائي يحدد عبر الواتساب" : `${validatedData.totalPrice} ج.م`}\n`;
 
     const whatsappNumber =
-      process.env.NEXT_PUBLIC_ADMIN_PHONE || "+201094920744";
+      process.env.NEXT_PUBLIC_ADMIN_PHONE || "+201055035521";
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
 
@@ -156,6 +156,11 @@ export async function submitOrder(data: z.infer<typeof CheckoutSchema>) {
         updatedAt: a.updatedAt.toISOString(),
       })),
     } : null;
+
+    revalidatePath("/admin/orders");
+    revalidatePath("/admin/dashboard");
+    revalidatePath("/admin/customers");
+    revalidatePath("/orders");
 
     return { success: true, orderId: order.id, whatsappUrl, customer: serializedCustomer };
   } catch (error) {
@@ -192,10 +197,10 @@ export async function getOrders(status?: OrderStatus): Promise<AdminOrder[]> {
         updatedAt: order.updatedAt.toISOString(),
         address: order.address
           ? {
-              ...order.address,
-              createdAt: order.address.createdAt.toISOString(),
-              updatedAt: order.address.updatedAt.toISOString(),
-            }
+            ...order.address,
+            createdAt: order.address.createdAt.toISOString(),
+            updatedAt: order.address.updatedAt.toISOString(),
+          }
           : null,
         addressText: order.address?.addressText || null,
         latitude: Number(order.address?.latitude || 0),
@@ -282,7 +287,7 @@ export async function getDashboardStats() {
 export async function updateOrderItemsPrices(orderId: string, items: { id: string; newPrice: number }[]) {
   try {
     await prisma.$transaction(
-      items.map(item => 
+      items.map(item =>
         prisma.orderItem.update({
           where: { id: item.id },
           data: { priceAtPurchase: item.newPrice }
@@ -304,8 +309,9 @@ export async function updateOrderItemsPrices(orderId: string, items: { id: strin
     }
 
     revalidatePath("/admin/orders");
-    revalidatePath("/admin");
+    revalidatePath("/admin/dashboard");
     revalidatePath(`/orders/${orderId}`);
+    revalidatePath("/orders");
     return { success: true };
   } catch (error) {
     console.error("Failed to update prices:", error);
@@ -331,8 +337,9 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus) {
     });
 
     revalidatePath("/admin/orders");
-    revalidatePath("/admin");
+    revalidatePath("/admin/dashboard");
     revalidatePath(`/orders/${orderId}`);
+    revalidatePath("/orders");
     return { success: true, order };
   } catch (error) {
     console.error("Failed to update order status:", error);

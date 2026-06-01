@@ -10,6 +10,17 @@
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
 
+// ─── Service Worker Lifecycle ──────────────────────────────────────────────────
+self.addEventListener('install', () => {
+  console.log('[SW] Service Worker installing...');
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  console.log('[SW] Service Worker activating...');
+  event.waitUntil(self.clients.claim());
+});
+
 // ─── Firebase Configuration ───────────────────────────────────────────────────
 // يجب مطابقة هذه القيم مع المتغيرات في .env
 const firebaseConfig = {

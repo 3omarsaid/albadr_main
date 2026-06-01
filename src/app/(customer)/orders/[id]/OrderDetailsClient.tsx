@@ -75,7 +75,7 @@ export default function OrderDetailsClient({
     }
   }, [isInitialized, customer, initialOrder.customerId, router]);
 
-  const ADMIN_PHONE = process.env.NEXT_PUBLIC_ADMIN_PHONE || "+201094920744";
+  const ADMIN_PHONE = process.env.NEXT_PUBLIC_ADMIN_PHONE || "+201055035521";
   const whatsappLink = `https://wa.me/${ADMIN_PHONE}?text=${encodeURIComponent(
     `السلام عليكم، بخصوص طلبي رقم #${order.orderNumber.split("-").pop()}
     ${order?.address ? `العنوان: ${order.address.addressText}` : ""}`,
@@ -388,7 +388,7 @@ export default function OrderDetailsClient({
                     </h4>
                     <span className="text-lg font-black text-slate-900 whitespace-nowrap">
                       {item.product?.unit === "طن" ||
-                      item.product?.unit === "Ton"
+                        item.product?.unit === "Ton"
                         ? "يتم الاتفاق"
                         : `${(item.priceAtPurchase * item.quantity).toLocaleString()} ج.م`}
                     </span>
@@ -401,7 +401,7 @@ export default function OrderDetailsClient({
                     <span className="text-[11px] font-bold text-slate-400">
                       سعر الوحدة:{" "}
                       {item.product?.unit === "طن" ||
-                      item.product?.unit === "Ton"
+                        item.product?.unit === "Ton"
                         ? "يتم الاتفاق"
                         : `${item.priceAtPurchase.toLocaleString()} ج.م`}
                     </span>
@@ -429,7 +429,7 @@ export default function OrderDetailsClient({
             </div>
             <div className="py-2 px-6 flex justify-between items-center bg-[#0a4d3c]/[0.03] rounded-[2rem] border border-[#0a4d3c]/5">
               <span className="text-lg font-black text-slate-900">
-                الإجمالي النهائي : 
+                الإجمالي النهائي :
               </span>
               <span className="text-lg md:text-2xl font-black text-[#0a4d3c]">
                 {hasTonItems
