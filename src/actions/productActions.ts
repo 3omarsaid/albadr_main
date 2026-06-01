@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { SerializedProduct } from '@/types';
+import { revalidatePath } from 'next/cache';
 
 export async function getProducts(category?: string, includeInactive: boolean = false): Promise<SerializedProduct[]> {
   try {
@@ -52,6 +53,8 @@ export async function deleteProduct(id: string) {
     await prisma.product.delete({
       where: { id },
     });
+    revalidatePath("/dashboard/products");
+    revalidatePath("/");
     return { success: true };
   } catch (error) {
     console.error('Failed to delete product:', error);
@@ -72,6 +75,8 @@ export async function createProduct(data: Partial<SerializedProduct>) {
         images: data.images || [],
       },
     });
+    revalidatePath("/dashboard/products");
+    revalidatePath("/");
     return { success: true, product: {
       ...product,
       price: Number(product.price),
@@ -98,6 +103,8 @@ export async function updateProduct(id: string, data: Partial<SerializedProduct>
         images: data.images,
       },
     });
+    revalidatePath("/dashboard/products");
+    revalidatePath("/");
     return { success: true, product: {
       ...product,
       price: Number(product.price),
@@ -116,6 +123,8 @@ export async function updateProductStatus(id: string, isActive: boolean) {
       where: { id },
       data: { isActive },
     });
+    revalidatePath("/dashboard/products");
+    revalidatePath("/");
     return { success: true, product: {
       ...product,
       price: Number(product.price),
